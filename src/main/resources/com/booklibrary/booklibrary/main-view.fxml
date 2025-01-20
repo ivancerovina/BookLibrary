@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="619.0" prefWidth="943.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.booklibrary.booklibrary.controllers.MainController">
+   <children>
+      <TabPane prefHeight="619.0" prefWidth="943.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Books">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="561.0" prefWidth="1091.0">
+                     <children>
+                        <TableView fx:id="bookTableView" prefHeight="494.0" prefWidth="943.0">
+                          <columns>
+                            <TableColumn fx:id="bookIdColumn" prefWidth="52.0" text="ID" />
+                            <TableColumn fx:id="bookTitleColumn" prefWidth="206.0" text="Title" />
+                              <TableColumn fx:id="bookAuthorColumn" prefWidth="110.0" text="Author" />
+                              <TableColumn fx:id="bookGenreColumn" prefWidth="106.0" text="Genre" />
+                              <TableColumn fx:id="bookYearColumn" prefWidth="53.0" text="Year" />
+                              <TableColumn fx:id="bookRatingColumn" prefWidth="91.0" text="Rating (1-5)" />
+                              <TableColumn fx:id="bookReservedColumn" prefWidth="317.0" text="Reserved" />
+                          </columns>
+                        </TableView>
+                        <Button fx:id="createBookButton" layoutX="23.0" layoutY="508.0" mnemonicParsing="false" onAction="#handleCreateBook" text="Create book" />
+                        <Button fx:id="deleteBookButton" layoutX="123.0" layoutY="508.0" mnemonicParsing="false" onAction="#handleDeleteBook" text="Delete selected" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab text="Authors">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TableView fx:id="authorTableView" prefHeight="494.0" prefWidth="943.0">
+                           <columns>
+                              <TableColumn fx:id="authorIdColumn" prefWidth="52.0" text="ID" />
+                              <TableColumn fx:id="authorNameColumn" prefWidth="206.0" text="Full name" />
+                              <TableColumn fx:id="authorBookCountColumn" prefWidth="110.0" text="Count of books" />
+                              <TableColumn fx:id="authorAverageRatingColumn" prefWidth="142.0" text="Average rating" />
+                              <TableColumn fx:id="authorGenresColumn" prefWidth="386.0" text="Genres" />
+                           </columns>
+                        </TableView>
+                        <Button fx:id="createAuthorButton" layoutX="23.0" layoutY="512.0" mnemonicParsing="false" onAction="#handleCreateAuthor" text="Create author" />
+                        <Button fx:id="deleteAuthorButton" layoutX="128.0" layoutY="512.0" mnemonicParsing="false" onAction="#handleDeleteAuthor" text="Delete author" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+            <Tab text="Members">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TableView fx:id="memberTableView" prefHeight="494.0" prefWidth="943.0">
+                           <columns>
+                              <TableColumn fx:id="memberIdColumn" prefWidth="52.0" text="ID" />
+                              <TableColumn fx:id="memberNameColumn" prefWidth="206.0" text="Full name" />
+                              <TableColumn fx:id="memberReviewNumberColumn" prefWidth="133.0" text="Number of reviews" />
+                           </columns>
+                        </TableView>
+                        <Button fx:id="createMemberButton" layoutX="14.0" layoutY="509.0" mnemonicParsing="false" onAction="#handleCreateMember" text="Create member" />
+                        <Button fx:id="deleteMemberButton" layoutX="133.0" layoutY="509.0" mnemonicParsing="false" onAction="#handleDeleteMember" text="Delete selected" />
+                        <Button fx:id="showReservedBooks" layoutX="788.0" layoutY="509.0" mnemonicParsing="false" text="Show reserved books" />
+                        <Button fx:id="addReviewButton" layoutX="593.0" layoutY="509.0" mnemonicParsing="false" text="Add review" />
+                        <Button fx:id="showReviewsButton" layoutX="684.0" layoutY="509.0" mnemonicParsing="false" text="Show reviews" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>
