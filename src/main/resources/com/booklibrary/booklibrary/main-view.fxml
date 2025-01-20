@@ -64,9 +64,6 @@
                         </TableView>
                         <Button fx:id="createMemberButton" layoutX="14.0" layoutY="509.0" mnemonicParsing="false" onAction="#handleCreateMember" text="Create member" />
                         <Button fx:id="deleteMemberButton" layoutX="133.0" layoutY="509.0" mnemonicParsing="false" onAction="#handleDeleteMember" text="Delete selected" />
-                        <Button fx:id="showReservedBooks" layoutX="788.0" layoutY="509.0" mnemonicParsing="false" text="Show reserved books" />
-                        <Button fx:id="addReviewButton" layoutX="593.0" layoutY="509.0" mnemonicParsing="false" text="Add review" />
-                        <Button fx:id="showReviewsButton" layoutX="684.0" layoutY="509.0" mnemonicParsing="false" text="Show reviews" />
                      </children>
                   </AnchorPane>
                </content>
