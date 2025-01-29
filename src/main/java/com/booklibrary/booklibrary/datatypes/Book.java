@@ -8,6 +8,7 @@ import javafx.beans.property.StringProperty;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.booklibrary.booklibrary.utils.Utils.showError;
@@ -207,5 +208,12 @@ public class Book {
             showError("An error occurred while reserving a book");
             e.printStackTrace();
         }
+    }
+
+    public void logReservation(int memberId, Date reservedAt) {
+    }
+
+    public void getReservationHistory() {
+
     }
 }

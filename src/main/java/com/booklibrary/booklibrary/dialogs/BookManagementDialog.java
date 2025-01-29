@@ -3,6 +3,7 @@ package com.booklibrary.booklibrary.dialogs;
 import com.booklibrary.booklibrary.datatypes.Book;
 import com.booklibrary.booklibrary.datatypes.BookReview;
 import com.booklibrary.booklibrary.datatypes.Member;
+import com.booklibrary.booklibrary.datatypes.ReservationRecord;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -13,10 +14,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
-public class BookReviewsDialog extends Dialog<BookReview> {
+public class BookManagementDialog extends Dialog<BookReview> {
     private static final String STAR = "★";
     private static final String EMPTY_STAR = "☆";
     private final VBox reviewsContainer = new VBox(10);
@@ -28,10 +33,10 @@ public class BookReviewsDialog extends Dialog<BookReview> {
     private Book book;
     private Label reservationStatus;
 
-    public BookReviewsDialog(Stage owner, Book book) {
+    public BookManagementDialog(Stage owner, Book book) {
         this.book = book;
 
-        setTitle(book.getTitleProperty().get());
+        setTitle(book.getTitleProperty().get() + " by " + book.getAuthor().getFullNameProperty().get());
         setHeaderText(null);
 
         DialogPane dialogPane = getDialogPane();
@@ -51,7 +56,11 @@ public class BookReviewsDialog extends Dialog<BookReview> {
         reservationsTab.setContent(createReservationsContent());
         reservationsTab.setClosable(false);
 
-        tabPane.getTabs().addAll(reviewsTab, reservationsTab);
+        Tab historyTab = new Tab("Reservation History");
+        historyTab.setContent(createReservationHistoryContent());
+        historyTab.setClosable(false);
+
+        tabPane.getTabs().addAll(reviewsTab, reservationsTab, historyTab);
 
         // Set up dialog buttons
         ButtonType closeButton = new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -139,6 +148,13 @@ public class BookReviewsDialog extends Dialog<BookReview> {
         // Update the book's reservation
         book.reserve(selectedMember.getIdProperty().get());
 
+        // Log the reservation in reservation_records
+        ReservationRecord.create(
+                selectedMember.getIdProperty().get(),
+                book.getIdProperty().get(),
+                new java.sql.Timestamp(System.currentTimeMillis())
+        );
+
         // Reset the member picker and refresh the dialog
         reservationMemberPicker.setValue(null);
         updateReservationStatus();
@@ -148,6 +164,15 @@ public class BookReviewsDialog extends Dialog<BookReview> {
         if (book.getReservedByMember() == null) {
             showAlert("This book is not currently reserved.");
             return;
+        }
+
+        // Find the active reservation record and mark it as returned
+        var records = ReservationRecord.getByBook(book.getIdProperty().get());
+        for (ReservationRecord record : records) {
+            if (!record.isReturned()) {
+                record.markAsReturned();
+                break;
+            }
         }
 
         // Remove the reservation
@@ -162,8 +187,14 @@ public class BookReviewsDialog extends Dialog<BookReview> {
         // Refresh the dialog to show updated reservation status
         DialogPane dialogPane = getDialogPane();
         TabPane tabPane = (TabPane) dialogPane.getContent();
+
+        // Update reservations tab
         Tab reservationsTab = tabPane.getTabs().get(1);
         reservationsTab.setContent(createReservationsContent());
+
+        // Update history tab
+        Tab historyTab = tabPane.getTabs().get(2);
+        historyTab.setContent(createReservationHistoryContent());
     }
 
     private HBox createAverageRatingDisplay() {
@@ -256,6 +287,66 @@ public class BookReviewsDialog extends Dialog<BookReview> {
         return container;
     }
 
+    private VBox createReservationHistoryContent() {
+        VBox container = new VBox(20);
+        container.setPadding(new Insets(20));
+        container.setAlignment(Pos.TOP_CENTER);
+
+        // Title
+        Label historyLabel = new Label("Reservation History");
+        historyLabel.getStyleClass().add("section-title");
+
+        // Create scrollable container for history entries
+        VBox historyContainer = new VBox(10);
+        ScrollPane scrollPane = new ScrollPane(historyContainer);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefViewportHeight(300);
+
+        // Load and display reservation history
+        var records = ReservationRecord.getByBook(book.getIdProperty().get());
+
+        if (records.isEmpty()) {
+            Label noHistoryLabel = new Label("No reservation history");
+            noHistoryLabel.getStyleClass().add("no-reviews-label");
+            historyContainer.getChildren().add(noHistoryLabel);
+        } else {
+            for (ReservationRecord record : records) {
+                VBox recordBox = new VBox(5);
+                recordBox.getStyleClass().add("review-box");
+                recordBox.setPadding(new Insets(10));
+
+                // Member name and reservation date
+                HBox header = new HBox(10);
+                Label memberLabel = new Label(record.getMember().getFullNameProperty().get());
+                memberLabel.getStyleClass().add("member-name-label");
+
+                // Format and display dates
+                String reservedDate = formatDateTime(Date.from(record.getReservedAtProperty().get().toInstant()));
+                Label reservedLabel = new Label("Reserved: " + reservedDate);
+
+                header.getChildren().addAll(memberLabel);
+
+                // Create status box
+                HBox statusBox = new HBox(10);
+                if (record.isReturned()) {
+                    String returnedDate = formatDateTime(Date.from(record.getReturnedAtProperty().get().toInstant()));
+                    Label returnedLabel = new Label("Returned: " + returnedDate);
+                    statusBox.getChildren().add(returnedLabel);
+                } else {
+                    Label activeLabel = new Label("Currently Reserved");
+                    activeLabel.setStyle("-fx-text-fill: #2196F3;"); // Blue color for active reservations
+                    statusBox.getChildren().add(activeLabel);
+                }
+
+                recordBox.getChildren().addAll(header, reservedLabel, statusBox);
+                historyContainer.getChildren().add(recordBox);
+            }
+        }
+
+        container.getChildren().addAll(historyLabel, scrollPane);
+        return container;
+    }
+
     private void submitReview() {
         var rating = starRatingPicker.getValue();
         var text = newReviewText.getText().trim();
@@ -285,7 +376,13 @@ public class BookReviewsDialog extends Dialog<BookReview> {
     }
 
     private double calculateAverageRating() {
-        if (reviews.isEmpty()) return 0.0;
+        if (reviews.isEmpty()) {
+            loadReviews();
+
+            if (reviews.isEmpty()) {
+                return 0.0;
+            }
+        }
         return reviews.stream().mapToInt(r -> r.getRatingProperty().get()).average().orElse(0.0);
     }
 

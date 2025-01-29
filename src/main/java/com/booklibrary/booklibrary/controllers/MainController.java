@@ -3,7 +3,7 @@ package com.booklibrary.booklibrary.controllers;
 import com.booklibrary.booklibrary.datatypes.Author;
 import com.booklibrary.booklibrary.datatypes.Book;
 import com.booklibrary.booklibrary.datatypes.Member;
-import com.booklibrary.booklibrary.dialogs.BookReviewsDialog;
+import com.booklibrary.booklibrary.dialogs.BookManagementDialog;
 import com.booklibrary.booklibrary.dialogs.CreateBookDialog;
 import com.booklibrary.booklibrary.dialogs.CreateMemberDialog;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -17,7 +17,6 @@ import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
 import java.util.Objects;
-import java.util.function.BooleanSupplier;
 
 import static com.booklibrary.booklibrary.utils.Utils.showError;
 import static com.booklibrary.booklibrary.utils.Utils.showSuccess;
@@ -153,7 +152,7 @@ public class MainController {
             return;
         }
 
-        var dialog = new BookReviewsDialog((Stage) createMemberButton.getScene().getWindow(), book);
+        var dialog = new BookManagementDialog((Stage) createMemberButton.getScene().getWindow(), book);
         dialog.showAndWait();
         refreshAuthors();
         refreshBooks();
